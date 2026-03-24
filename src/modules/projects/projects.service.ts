@@ -1,25 +1,43 @@
-import { Injectable } from '@nestjs/common';
-import { ProjectRequestDTO } from './projects.dto';
+import { Injectable } from '@nestjs/common'
+import { PrismaService } from 'src/prisma.service'
+import { ProjectRequestDTO } from './projects.dto'
 
 @Injectable()
 export class ProjectsService {
-    findAll() {
-        return ['teste1', 'teste2']
-    }
+  constructor(private readonly prisma: PrismaService) {}
 
-    findById(id: string) {
-        return 'teste1'
-    }
+  findAll() {
+    return this.prisma.project.findMany()
+  }
 
-    create(data: ProjectRequestDTO) {
-        return 'create teste1'
-    }
+  findById(id: string) {
+    return this.prisma.project.findFirst({
+      where: {
+        id,
+      },
+    })
+  }
 
-    update(id: string, data: ProjectRequestDTO) {
-        return 'update teste1'
-    }
+  create(data: ProjectRequestDTO) {
+    return this.prisma.project.create({
+      data,
+    })
+  }
 
-    remove(id: string) {
-        return 'remove teste1'
-    }
+  update(id: string, data: ProjectRequestDTO) {
+    return this.prisma.project.update({
+      where: {
+        id,
+      },
+      data,
+    })
+  }
+
+  remove(id: string) {
+    return this.prisma.project.delete({
+      where: {
+        id,
+      },
+    })
+  }
 }
