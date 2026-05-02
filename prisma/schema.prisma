@@ -24,6 +24,8 @@ model User {
 
     createdProjects Project[] @relation("UserProjects")
     tasksAssigned Task[] @relation("AssignedTasks")
+    comments Comment[]
+    collaborations ProjectColaborator[]
 }
 
 model Project {
@@ -36,6 +38,28 @@ model Project {
 
     tasks Task[]
     createdBy User @relation("UserProjects", fields: [createdById], references: [id])
+    collaborators ProjectColaborator[]
+}
+
+enum CollaboratorRole {
+    VIEWER
+    EDITOR
+    OWNER
+}
+
+// Para relacionamentos n <---> n, podemos criar uma tabela intermediária
+
+model ProjectColaborator {
+    id String @id @default(uuid())
+    role CollaboratorRole @default(EDITOR)
+    userId String
+    projectId String
+    createdAt DateTime @default(now())
+
+    user User @relation(fields: [userId], references: [id])
+    project Project @relation(fields: [projectId], references: [id])
+
+    @@unique([userId, projectId])
 }
 
 enum TaskStatus {
@@ -64,12 +88,17 @@ model Task {
 
     project Project @relation(fields: [projectId], references:[id])
     assignee User? @relation("AssignedTasks", fields: [assigneeId], references: [id])
+    comments Comment[]
 }
 
-model ProjectColaborator {
+model Comment {
+    id String @id @default(uuid())
+    content String
+    authorId String
+    taskId String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 
-}
-
-model Comments {
-
+    author User @relation(fields: [authorId], references: [id])
+    task Task @relation(fields: [taskId], references: [id])
 }
